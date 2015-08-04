@@ -1,0 +1,15 @@
+@* listing Template File *@
+@import org.mellowtech.sdrive.SFile
+
+@(files: Seq[SFile])(implicit messages: Messages)
+
+@main("Welcome to Condo", Messages("menu.admin")) {
+
+<h2>Google drive</h2>
+<ul>
+@for(f <- files){
+	<li>@f.title.get</li>
+}
+</ul>
+
+}

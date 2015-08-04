@@ -1,0 +1,36 @@
+@* admin Template File *@
+@import dao.Config
+@import b3.vertical.fieldConstructor
+
+@(configForm: Form[Config])(implicit messages: Messages)
+
+@main("Admin", "menu.admin") {
+	
+<h2>Admin</h2>
+
+<div class="row">
+	<div class="col-md-8">
+		<h3>Update Config</h3>
+		<div class="well">
+			@b3.form(routes.Application.updateConfig){
+				@b3.text(configForm("name"), '_label -> "Condo Name")
+				@b3.text(configForm("rootDir"), '_label -> "Root Directory")
+				@b3.email(configForm("email"), '_label -> "Email")
+				@b3.text(configForm("web"), '_label -> "Web")
+				@b3.textarea(configForm("description"), '_label -> "About")
+				@b3.submit('class -> "btn btn-default"){update config}
+			}
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-8">
+		<h3>Create Default Folders</h3>
+		<div class="well">
+			@b3.form(routes.Application.createDefaultFolders){
+				@b3.submit('class -> "btn btn-default"){create default folders}
+			}
+		</div>
+	</div>
+</div>
+}
