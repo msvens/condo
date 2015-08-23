@@ -14,6 +14,8 @@ import play.api.Play
 @ImplementedBy(classOf[DefaultGDriver])
 trait GDriver {
   implicit def driver: GDrive
+  implicit def rootDir: Option[String]
+  def _rootDir(s: Option[String]): Unit
 }
 
 @Singleton
@@ -23,6 +25,11 @@ class DefaultGDriver extends GDriver {
   val clientId = Play.current.configuration.getString("google.clientId").get
   val clientSecret = Play.current.configuration.getString("google.clientSecret").get
   private var _gdrive: Option[GDrive] = None
+
+  private var _rootDir: Option[String] = None
+
+  def _rootDir(s : Option[String]) = _rootDir = s
+  def rootDir = _rootDir
   
   implicit def driver: GDrive = try{
     import scala.concurrent.duration._
@@ -35,6 +42,7 @@ class DefaultGDriver extends GDriver {
         Await.result(ft, 500 millis) match {
           case None => throw new Error("could not retrive token")
           case Some(t) => {
+            println("token: "+t.token+" "+t.refreshToken)
             val gd = new GDrive(t.token, t.refreshToken, clientId, clientSecret)
             _gdrive = Some(gd)
             _gdrive.get

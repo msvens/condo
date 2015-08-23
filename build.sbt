@@ -14,15 +14,16 @@ libraryDependencies ++= Seq(
   "org.postgresql" % "postgresql" % "9.3-1102-jdbc41",
   "com.google.apis" % "google-api-services-drive" % "v2-rev158-1.19.1",
   "com.adrianhurt" %% "play-bootstrap3" % "0.4.4-P24",
+  "org.cvogt" %% "play-json-extensions" % "0.5.0",
   cache,
   ws,
   specs2 % Test
 )
 
 //webjars
-//libraryDependencies ++= Seq(
-//	"org.webjars" % "bootstrap" % "3.3.5"
-//)
+libraryDependencies ++= Seq(
+  "org.webjars" % "bootbox" % "4.4.0"
+)
 
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
 

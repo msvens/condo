@@ -5,10 +5,11 @@ import play.api.mvc._
 import play.api.i18n._
 import javax.inject.Inject
 import org.mellowtech.sdrive.GApi
+import scala.concurrent.Future
 import scala.util.{Success,Failure}
 import org.mellowtech.sdrive.GDrive
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import dao.{ConfigDAO, DirectoryDAO, MemberDAO}
+import dao.{Config, ConfigDAO, DirectoryDAO, MemberDAO}
 
 class Application @Inject() (val messagesApi: MessagesApi, val gd: GDriver) extends Controller with I18nSupport {
 
@@ -19,6 +20,11 @@ class Application @Inject() (val messagesApi: MessagesApi, val gd: GDriver) exte
   val configDAO = new ConfigDAO
   val directoryDAO = new DirectoryDAO
   val memberDAO = new MemberDAO
+
+  configDAO.config.map(oc => oc match {
+    case Some(c) => gd._rootDir(Some(c.rootDir))
+    case None => gd._rootDir(None)
+  })
   
   def index = Action {implicit r => 
     val m = messagesApi.messages
@@ -56,40 +62,50 @@ class Application @Inject() (val messagesApi: MessagesApi, val gd: GDriver) exte
     val rd = c.rootDir
     for{
       t <- GApi.asyncRetry(GApi.addDir(c.rootDir)) if c.rootDir != "####"
-      c <- configDAO.config_(c.copy(rootDir = t.get))
-    } yield Redirect(routes.Application.admin)
+      c <- configDAO.config_(c.copy(rootDir = t))
+    } yield {
+      gd._rootDir(Some(t))
+      Redirect(routes.Application.admin)
+    }
+
     //configDAO.config_(c).map(_ => Redirect(routes.Application.admin))
     //tokenDAO.insertOrUpdate(t.token, t.refreshToken).map(_ => Redirect(routes.Maintenance.index))
   }
   
   def createDefaultFolders = Action.async{implicit r =>
-    for{
-      c <- configDAO.config
-      f1 <- GApi.asyncRetry(GApi.addDir("ekonomi", Some(c.get.rootDir))) if c != None
-      f11 <- directoryDAO.insert(f1.get, "ekonomi", Some("economics")) if f1.isSuccess
-      f2 <- GApi.asyncRetry(GApi.addDir("möten", Some(c.get.rootDir))) if c != None
-      f21 <- directoryDAO.insert(f2.get, "möten", Some("meetings")) if f2.isSuccess
-    } yield Redirect(routes.Application.drive) 
+    val r: Future[Result] = for{
+      d1 <- createDir("ekonomi", "economics", gd.rootDir)
+      d2 <- createDir("möten", "meetings", gd.rootDir)
+      d3 <- createDir("information", "info", gd.rootDir)
+    } yield Redirect(routes.Application.drive(None))
+    r
+
   }
+
+  private def createDir(n: String, r: String, rd: Option[String]): Future[Int] = for{
+    //c <- configDAO.config
+    f1 <- GApi.asyncRetry(GApi.addDir(n, rd)) if rd != None
+    f11 <- directoryDAO.insert(f1, n, Some(r))
+  } yield f11
   
-  def drive = Action{implicit r =>
-    Ok(views.html.index("Your new application is ready.", "menu.drive"))
+  def drive(folder: Option[String]) = Action.async{implicit r =>
+    val dir = folder match {
+      case None => gd.rootDir
+      case Some(d) => folder
+    }
+    GApi.asyncRetry(GApi.files(dir)).map {s =>
+      Ok(views.html.drive(s))
+    }.recover{case thrown => BadRequest}
+
   }
   
   //Stuff that might be removed....more for testing purposes
   def listFiles = Action.async {implicit r =>
     Logger.info("some info "+ gd.driver.about.getRootFolderId)
-    GApi.asyncRetry(GApi.files(None)).map {_ match {
-      case Success(s) => {
-        Logger.info("could list files")
+
+    GApi.asyncRetry(GApi.files(None)).map {s =>
         Ok(views.html.listing(s))
-      }
-      case Failure(e) => {
-        Logger.error("could not list files", e)
-        BadRequest
-      }
-      } 
-    }
+      }.recover{case thrown => BadRequest}
   }
 
 }

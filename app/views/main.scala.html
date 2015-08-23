@@ -29,7 +29,7 @@
 			<nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
 		  		<ul class="nav navbar-nav">
       	    		<li @if(current == "menu.members") {class = "active"}> <a href='@routes.Application.members()'>@Messages("menu.members")</a></li>
-      	    		<li @if(current == "menu.drive") {class = "active"}> <a href='@routes.Application.drive()'>@Messages("menu.drive")</a></li>
+      	    		<li @if(current == "menu.drive") {class = "active"}> <a href='@routes.Application.drive(None)'>@Messages("menu.drive")</a></li>
       	    		<li @if(current == "menu.home") {class = "active"}> <a href='@routes.Application.index()'>@Messages("menu.home")</a></li>
 		  		</ul>
      	  		<ul class="nav navbar-nav navbar-right">
@@ -41,6 +41,7 @@
 	
 <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("jquery.min.js"))'></script>
 <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.js"))'></script>
+
 	<div class="container condo-content">
 		@content
 	</div>

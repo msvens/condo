@@ -1,0 +1,68 @@
+@import org.mellowtech.sdrive.SFile
+@import org.mellowtech.sdrive.GApi
+
+@(files: Seq[SFile])(implicit messages: Messages)
+
+@main("Drive", "menu.drive") {
+
+    <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("bootbox.js"))'></script>
+    <script type="text/javascript" src="@routes.Api.apiJsRoutes"></script>
+    <script type="text/javascript">
+        $(function(){
+
+        function rmDoc(docid){
+            var r = apiJsRoutes.controllers.Api.deletefile(docid)
+            $.ajax({
+                url: r.url,
+                type: r.type,
+                success: function(data){
+                    window.location = window.location;
+                }
+            });
+        }
+
+        /*Event Handlers*/
+        $('td.rmdoc').on('click', function(e){
+            e.preventDefault();
+            var docid = $(this).parent('tr').data('docid')
+            bootbox.confirm("Really delete file?", function(confirmed){
+                if(confirmed){
+                    rmDoc(docid);
+                }
+                });
+
+        });
+        });
+    </script>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>name</th>
+                <th>size</th>
+                <th>modified</th>
+                <th>edit</th>
+                <th>remove</th>
+            </tr>
+        </thead>
+        <tbody>
+        @for(f <- files){
+            <tr data-docid=@f.id.get>
+                @if(GApi.isFolder(f)){
+                    <td><span class="glyphicon glyphicon-folder-close" aria-hidden="true"> </span>
+                        <a href='@routes.Application.drive(f.id)'>@f.title</a>
+                    </td>
+                } else {
+                    <td><span class="glyphicon glyphicon-file" aria-hidden="true"> </span>@f.title</td>
+                }
+                <td>@f.fileSize</td>
+                <td>@f.modifiedDate</td>
+                <td><a href="@f.alternateLink" target="_blank"><span class="glyphicon glyphicon-pencil" aria-hidden="true"/></a></td>
+                <td class="rmdoc"><span class="glyphicon glyphicon-remove" aria-hidden="true"/></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+
+}
