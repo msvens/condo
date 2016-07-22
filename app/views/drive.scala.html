@@ -1,12 +1,12 @@
-@import org.mellowtech.sdrive.SFile
-@import org.mellowtech.sdrive.GApi
+@import org.mellowtech.gapi.model.SFile
+@import org.mellowtech.gapi.service.DriveService
 
 @(files: Seq[SFile])(implicit messages: Messages)
 
 @main("Drive", "menu.drive") {
 
     <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("bootbox.js"))'></script>
-    <script type="text/javascript" src="@routes.Api.apiJsRoutes"></script>
+    <script type="text/javascript" src="@routes.DriveApi.apiJsRoutes"></script>
     <script type="text/javascript">
         $(function(){
 
@@ -48,7 +48,7 @@
         <tbody>
         @for(f <- files){
             <tr data-docid=@f.id.get>
-                @if(GApi.isFolder(f)){
+                @if(DriveService.isFolder(f)){
                     <td><span class="glyphicon glyphicon-folder-close" aria-hidden="true"> </span>
                         <a href='@routes.Application.drive(f.id)'>@f.title</a>
                     </td>

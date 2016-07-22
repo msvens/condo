@@ -1,0 +1,16 @@
+@* listing Template File *@
+
+@import com.google.gdata.data.spreadsheet.SpreadsheetEntry
+
+@(sheets: Seq[SpreadsheetEntry])(implicit messages: Messages)
+
+@main("Welcome to Condo", Messages("menu.admin")) {
+
+<h2>Google drive</h2>
+<ul>
+@for(s <- sheets){
+	<li>@s.getTitle.getPlainText (@s.getKey)</li>
+}
+</ul>
+
+}

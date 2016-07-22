@@ -1,10 +1,12 @@
 package controllers
 
-import org.mellowtech.sdrive._
+import com.google.gdata.data.spreadsheet.{WorksheetEntry, SpreadsheetEntry}
+import org.mellowtech.gapi.model._
 import play.api.data.Forms._
 import play.api.data.Form
 import play.api.libs.json._
 import org.cvogt.play.json.Jsonx
+import scala.collection.JavaConverters._
 import org.cvogt.play.json.implicits.optionWithNull
 
 
@@ -67,5 +69,28 @@ object ApiContainers {
   implicit val sUserFmt = Json.format[SUser]
   implicit val sVideoMediaMetadataFmt = Json.format[SVideoMediaMetadata]
   implicit val sFileFmt = Jsonx.formatCaseClass[SFile]
+
+  implicit val worksheetEntryWrite = new Writes[WorksheetEntry] {
+    def writes(we: WorksheetEntry) = Json.obj(
+      "cols" -> we.getColCount,
+      "rows" -> we.getRowCount,
+      "cellFeed" -> we.getCellFeedUrl.toString,
+      "listFeed" -> we.getListFeedUrl.toString,
+      "title" -> we.getTitle.getPlainText,
+      "id" -> we.getId
+    )
+  }
+
+  implicit val spreadsheetEntryWrite = new Writes[SpreadsheetEntry] {
+    def writes(se: SpreadsheetEntry) = Json.obj(
+      "key" -> se.getKey,
+      "link" -> se.getSpreadsheetLink.getHref,
+      "worksheetFeed" -> se.getWorksheetFeedUrl.toString,
+      "title" -> se.getTitle.getPlainText,
+      "id" -> se.getId,
+      "worksheets" -> se.getWorksheets.asScala
+    )
+  }
+
 
 }

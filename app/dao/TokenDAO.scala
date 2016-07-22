@@ -1,14 +1,16 @@
 package dao
 
+import javax.inject.{Singleton, Inject}
+
 import play.api.Play
-import play.api.db.slick.DatabaseConfigProvider
-import play.api.db.slick.HasDatabaseConfig
+import play.api.db.slick.{HasDatabaseConfigProvider, DatabaseConfigProvider, HasDatabaseConfig}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import slick.driver.JdbcProfile
 import scala.concurrent.Future
 
-class TokenDAO extends HasDatabaseConfig[JdbcProfile] {
-  protected val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
+@Singleton
+class TokenDAO @Inject() (protected val dbConfigProvider: DatabaseConfigProvider) extends HasDatabaseConfigProvider[JdbcProfile] {
+  //protected val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
   import driver.api._
   
   val clientId = Play.current.configuration.getString("google.clientId").get

@@ -1,8 +1,9 @@
 package dao
 
+import javax.inject.{Singleton, Inject}
+
 import play.api.Play
-import play.api.db.slick.DatabaseConfigProvider
-import play.api.db.slick.HasDatabaseConfig
+import play.api.db.slick.{HasDatabaseConfigProvider, DatabaseConfigProvider, HasDatabaseConfig}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import slick.driver.JdbcProfile
 import scala.concurrent.Future
@@ -10,9 +11,10 @@ import scala.concurrent.Future
 /**
  * @author msvens
  */
-class MemberDAO extends HasDatabaseConfig[JdbcProfile] {
+@Singleton
+class MemberDAO @Inject() (protected val dbConfigProvider: DatabaseConfigProvider) extends HasDatabaseConfigProvider[JdbcProfile] {
   
-  protected val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
+  //protected val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
   import driver.api._
   
   //case class Member(id: Option[Int], name: String, email: String, phone: Option[String], apt: Option[String], role: Option[String])
@@ -26,7 +28,7 @@ class MemberDAO extends HasDatabaseConfig[JdbcProfile] {
     def * = (id,name,email,phone,apt,role) <> (Member.tupled, Member.unapply _)
   }
   
-  private val members = TableQuery[MemberTable]
+  val members = TableQuery[MemberTable]
   
   def list: Future[Seq[Member]] = {
     val q = for(t <- members) yield t
@@ -43,6 +45,8 @@ class MemberDAO extends HasDatabaseConfig[JdbcProfile] {
   /*def insert(id: String, title: String, role: Option[String] = None): Future[Int] = {
     insert(Directory(id, title, role))
   }*/
+  
+  
   
   def insert(name: String, email: String, phone: Option[String], apt: Option[String], role: Option[String]): Future[Int] = {
     insert(Member(None, name, email, phone, apt, role))

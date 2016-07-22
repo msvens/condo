@@ -15,6 +15,7 @@ POST	/admin/createDefaultDirs	controllers.Application.createDefaultFolders
 
 # Can be removed
 GET		/files						controllers.Application.listFiles
+GET     /sheets                     controllers.Application.listSheets
 
 # Google Controls
 GET		/driveAuth					controllers.Google.driveAuth
@@ -26,11 +27,16 @@ POST	/maintenance/insertToken 	controllers.Maintenance.insertToken
 GET		/maintenance/token			controllers.Maintenance.token
 
 # API (Will change to a better mapping
-DELETE  /api/drive/files/:fileId    controllers.Api.deletefile(fileId)
-GET     /api/drive/files/:fileId    controllers.Api.file(fileId)
-GET     /api/drive/list/:fileId     controllers.Api.list(fileId)
-GET     /api/config                 controllers.Api.config
-GET     /api/javascriptRoutes       controllers.Api.apiJsRoutes
+DELETE  /api/drive/files/:fileId    controllers.DriveApi.deletefile(fileId)
+GET     /api/drive/files/:fileId    controllers.DriveApi.file(fileId)
+GET     /api/drive/list/:fileId     controllers.DriveApi.list(fileId)
+GET     /api/config                 controllers.DriveApi.config
+GET     /api/javascriptRoutes       controllers.DriveApi.apiJsRoutes
+GET     /api/sheets                 controllers.SheetApi.sheets
+GET     /api/sheets/:fileId/:ws     controllers.SheetApi.worksheet(fileId,ws)
+GET     /api/sheets/:fileId         controllers.SheetApi.sheet(fileId)
+PUT     /api/sheets/:fileId/:ws     controllers.SheetApi.createSheet(fileId,ws)
+POST    /api/exportMembers          controllers.DriveApi.exportMembers()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

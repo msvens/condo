@@ -1,8 +1,9 @@
 package dao
 
+import javax.inject.{Inject,Singleton}
+
 import play.api.Play
-import play.api.db.slick.DatabaseConfigProvider
-import play.api.db.slick.HasDatabaseConfig
+import play.api.db.slick.{HasDatabaseConfigProvider, DatabaseConfigProvider, HasDatabaseConfig}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import slick.driver.JdbcProfile
 import scala.concurrent.Future
@@ -10,9 +11,10 @@ import scala.concurrent.Future
 /**
  * @author msvens
  */
-class DirectoryDAO extends HasDatabaseConfig[JdbcProfile] {
+@Singleton
+class DirectoryDAO @Inject() (protected val dbConfigProvider: DatabaseConfigProvider) extends HasDatabaseConfigProvider[JdbcProfile] {
   
-  protected val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
+  //protected val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
   import driver.api._
   
   class DirectoryTable(tag: Tag) extends Table[Directory](tag, "directory"){
@@ -22,7 +24,7 @@ class DirectoryDAO extends HasDatabaseConfig[JdbcProfile] {
     def * = (id,title,role) <> (Directory.tupled, Directory.unapply _)
   }
   
-  private val dirs = TableQuery[DirectoryTable]
+  val dirs = TableQuery[DirectoryTable]
   
   def list: Future[Seq[Directory]] = {
     val q = for(t <- dirs) yield t

@@ -4,16 +4,18 @@ package dao
  * @author msvens
  */
 
+import javax.inject.{Inject,Singleton}
+
 import play.api.Play
-import play.api.db.slick.DatabaseConfigProvider
-import play.api.db.slick.HasDatabaseConfig
+
+import play.api.db.slick.{HasDatabaseConfigProvider, DatabaseConfigProvider, HasDatabaseConfig}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import slick.driver.JdbcProfile
 import scala.concurrent.Future
 
-class ConfigDAO extends HasDatabaseConfig[JdbcProfile] {
-  
-  protected val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
+@Singleton
+class ConfigDAO @Inject() (protected val dbConfigProvider: DatabaseConfigProvider) extends HasDatabaseConfigProvider[JdbcProfile] {
+
   import driver.api._
   
   class ConfigTable(tag: Tag) extends Table[Config](tag, "config"){
@@ -28,7 +30,7 @@ class ConfigDAO extends HasDatabaseConfig[JdbcProfile] {
   }
   
   val ID = 1000; //hard coded for now
-  private val configs = TableQuery[ConfigTable]
+  val configs = TableQuery[ConfigTable]
   
   def config: Future[Option[Config]] = {
     val q = configs.filter(_.id === ID)

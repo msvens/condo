@@ -13,7 +13,7 @@ import scala.concurrent.Await
 /**
  * @author msvens
  */
-class Google @Inject() (val messagesApi: MessagesApi, ws: WSClient) extends Controller with I18nSupport{
+class Google @Inject() (tokenDAO: TokenDAO, val messagesApi: MessagesApi, ws: WSClient) extends Controller with I18nSupport{
   
   import scala.collection.JavaConverters._
   import play.api.libs.json._
@@ -22,7 +22,7 @@ class Google @Inject() (val messagesApi: MessagesApi, ws: WSClient) extends Cont
   case class TokenResponse(access_token: String, token_type: String, expires_in: Int,
       id_token: String, refresh_token: Option[String])
           
-  val tokenDAO = new TokenDAO
+
   implicit val tokenReads = Json.reads[TokenResponse]
   
   val redirectURI = Play.current.configuration.getString("google.redirect").get

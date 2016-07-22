@@ -14,9 +14,8 @@ import javax.inject.Inject
 /**
  * @author msvens
  */
-class Maintenance @Inject() (val messagesApi: MessagesApi) extends Controller with I18nSupport{
-  
-  val tokenDAO = new TokenDAO
+class Maintenance @Inject() (tokenDAO: TokenDAO, val messagesApi: MessagesApi) extends Controller with I18nSupport{
+
   
   val tokenForm = Form(
     mapping(
